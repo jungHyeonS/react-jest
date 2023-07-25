@@ -3,7 +3,7 @@
 // "일시정지" 버튼을 클릭하면, 타이머의 진행이 일시정지됩니다.
 // "재설정" 버튼을 클릭하면, 타이머가 0으로 재설정됩니다.
 
-import { screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 // 타이머 텍스트가 있는지 테스트
 // 시작 버튼,일시정지,재설정 버튼이 있는지 테스트
@@ -13,7 +13,7 @@ import { screen } from "@testing-library/react";
 
 test("render to timer text element to document", () => {
   render(<Timer />);
-  const timerText = screen.queryAllByTestId("data-timer-text");
+  const timerText = screen.getByTestId("data-timer-text");
   expect(timerText).toBeInTheDocument();
 });
 
@@ -26,5 +26,49 @@ test("render to timer contorls to document", () => {
   expect(stopBtn).toBeInTheDocument();
 
   const resetBtn = screen.getByText("재설정");
-  expect(stopBtn).toBeInTheDocument();
+  expect(resetBtn).toBeInTheDocument();
+});
+
+test("click to timer start button", () => {
+  jest.useFakeTimers();
+  render(<Timer />);
+
+  const startBtn = screen.getByText("시작");
+  fireEvent.click(startBtn);
+  const timerText = screen.getByTestId("data-timer-text");
+  expect(timerText.textContent).toBe("0");
+  jest.advanceTimersByTime(3000);
+  expect(timerText.textContent).toBe("3");
+});
+
+test("click to timer stop button", () => {
+  jest.useFakeTimers();
+  render(<Timer />);
+
+  const startBtn = screen.getByText("시작");
+  fireEvent.click(startBtn);
+  const timerText = screen.getByTestId("data-timer-text");
+  expect(timerText.textContent).toBe("0");
+  jest.advanceTimersByTime(3000);
+
+  const stopBtn = screen.getByText("일시정지");
+  fireEvent.click(stopBtn);
+
+  expect(timerText.textContent).toBe("3");
+});
+
+test("click to timer reset button", () => {
+  jest.useFakeTimers();
+  render(<Timer />);
+
+  const startBtn = screen.getByText("시작");
+  fireEvent.click(startBtn);
+  const timerText = screen.getByTestId("data-timer-text");
+  expect(timerText.textContent).toBe("0");
+  jest.advanceTimersByTime(3000);
+
+  const resetBtn = screen.getByText("재설정");
+  fireEvent.click(resetBtn);
+
+  expect(timerText.textContent).toBe("0");
 });
