@@ -18,6 +18,10 @@ import Timer from "../timer/timer";
 // 일시정지 버튼을 클릭했을떄 타이머가 일시 정지 되는지 테스트
 // 재설정 버튼을 클릭했을떄 타이머가 초기화 되는지 테스트
 
+beforeEach(() => {
+  jest.useFakeTimers();
+});
+
 const setup = () => {
   render(<Timer />);
 
@@ -45,26 +49,23 @@ test("render to timer contorls to document", () => {
 });
 
 test("click to timer start button", async () => {
-  jest.useFakeTimers();
   const { startBtn, timerText } = setup();
 
   fireEvent.click(startBtn);
   act(() => {
     jest.runOnlyPendingTimers();
   });
-  // jest.advanceTimersByTime(1000);
-  expect(timerText.textContent).toBe("1");
+
+  await waitFor(() => expect(timerText).toHaveTextContent("1"));
 
   act(() => {
-    jest.runOnlyPendingTimers();
+    jest.advanceTimersByTime(1000);
   });
 
-  expect(timerText.textContent).toBe("2");
+  expect(timerText).toHaveTextContent("2");
 });
 
 test("click to timer stop button", () => {
-  jest.useFakeTimers();
-
   const { startBtn, timerText, stopBtn } = setup();
 
   expect(timerText.textContent).toBe("0");
@@ -83,8 +84,6 @@ test("click to timer stop button", () => {
 });
 
 test("click to timer reset button", () => {
-  jest.useFakeTimers();
-
   const { startBtn, timerText, resetBtn } = setup();
 
   expect(timerText.textContent).toBe("0");
