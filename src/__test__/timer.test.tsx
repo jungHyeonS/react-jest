@@ -18,10 +18,12 @@ import Timer from "../timer/timer";
 // 일시정지 버튼을 클릭했을떄 타이머가 일시 정지 되는지 테스트
 // 재설정 버튼을 클릭했을떄 타이머가 초기화 되는지 테스트
 
+//모든 테스트에서 페이크 타이머를 사용하도록 설정
 beforeEach(() => {
   jest.useFakeTimers();
 });
 
+//테스트에 필요한 모든 요소를 초기화 하는 단계
 const setup = () => {
   render(<Timer />);
 
@@ -51,14 +53,19 @@ test("render to timer contorls to document", () => {
 test("click to timer start button", async () => {
   const { startBtn, timerText } = setup();
 
+  //버튼 이밴트 발생
   fireEvent.click(startBtn);
+
   act(() => {
+    //현재 큐에 등록된 타이머들만 즉시 실행되고, 그 이후에 추가된 타이머는 실행하지 않는다
     jest.runOnlyPendingTimers();
   });
 
+  //특정 조건이 충족될때까지 테스트이 실행을 일시중지, 비동기적으로 상태를 업데이트하는 컴포넌트를 테스트할떄 유용
   await waitFor(() => expect(timerText).toHaveTextContent("1"));
 
   act(() => {
+    //jest에 타이머 시뮬레이션 메소드, 특정 시간 만큼 타이머를 진행시키는 역할
     jest.advanceTimersByTime(1000);
   });
 
